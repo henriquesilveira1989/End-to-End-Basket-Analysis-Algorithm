@@ -42,7 +42,7 @@ LIBS = {'CONDA_PACKAGES':'pandas-gbq google-cloud-core=1.3.0 six fsspec gcsfs','
  
 
 # Create Directed Acyclic Graph for Airflow
-with DAG('DAG_PROA_basket_analysis_process',
+with DAG('DAG_basket_analysis_process',
 		default_args=DEFAULT_DAG_ARGS,
 		schedule_interval='0 0 0 ? 1/3 MON *') as dag:
 	
@@ -51,31 +51,26 @@ with DAG('DAG_PROA_basket_analysis_process',
 					cluster_name='basket-analysis-spark-cluster',
 					image_version='1.5-debian10',
 					num_workers=2,
-					#network_uri='https://www.googleapis.com/compute/v1/projects/lh-brlm/global/networks/lh-network',
-					subnetwork_uri='https://www.googleapis.com/compute/v1/projects/lh-brlm/regions/us-central1/subnetworks/lh-subnet-usc1',
+					subnetwork_uri='PUT_YOUR_SUBNETWORK_URI_HERE',
 					region='us-central1',
 					tags='all-ingress',
-					custom_image_project_id='bi-prd-brlm',
 					metadata=LIBS,
 					init_actions_uris=['gs://goog-dataproc-initialization-actions-us-central1/python/conda-install.sh'],
-					#custom_image='custom-dataproc-1-5-10-poc',
-					#service_account=Variable.get('serviceAccount'),
-					#storage_bucket=Variable.get('dataproc_bucket'),
 					service_account_scopes='https://www.googleapis.com/auth/cloud-platform')
     
 	basket_pyspark_task = DataProcPySparkOperator(
 					task_id='basket-analysis',
-					main='gs://analytics-proa-lmbr/scripts-data-science/basket_spark.py',
+					main='PUT_YOUR_BASKET_SCRIPT__PATH_HERE',
 					cluster_name='basket-analysis-spark-cluster',
 					region='us-central1',
-					files='gs://analytics-proa-lmbr/scripts-data-science/dependencies/')
+					)
 
 	cloud_storage_to_bigquery = GoogleCloudStorageToBigQueryOperator(task_id='gcs_to_bq',
-					bucket='analytics-proa-lmbr',
+					bucket='PUT_YOUR_BUCKET_HERE',
 					source_objects= ['Data/Basket-analysis-data/*.parquet'],
-					destination_project_dataset_table='brlm-web-data.datalab.PROA_BASKET_ANALYSIS',
-					autodetect= True,
-					skip_leading_rows =1,
+					destination_project_dataset_table='destination-project.datasetname.table_name',
+					autodetect=True,
+					skip_leading_rows=1,
 					create_disposition='CREATE_IF_NEEDED',
 					write_disposition='WRITE_TRUNCATE',
 					source_format='parquet')
