@@ -1,4 +1,4 @@
-# End to End Basket Analysis Algorithm Pipeline with Ephemeral Cluster.
+#Pipeline End to End of Basket Analysis Algorithm with Ephemeral Cluster.
 
 This code is a End to End Pipeline to run a Basket Analysis Algorithm in pyspark orchestrated by Airflow creating a Spark cluster in Google Cloud Plataform. <br />
 <br />
